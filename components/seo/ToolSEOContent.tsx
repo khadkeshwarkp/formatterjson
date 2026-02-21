@@ -136,6 +136,8 @@ export default function ToolSEOContent({ toolId }: ToolSEOContentProps) {
       </ul>
 
       {/* Comparison table */}
+      {tool.seoExtra.comparisonRows.length > 0 && (
+      <>
       <h2 className="text-xl font-semibold mb-3">{tool.seoExtra.comparisonTitle}</h2>
       <div className="mb-6 border border-dt-border rounded-lg overflow-hidden">
         {tool.seoExtra.comparisonRows.map((row, i) => (
@@ -151,6 +153,8 @@ export default function ToolSEOContent({ toolId }: ToolSEOContentProps) {
           </div>
         ))}
       </div>
+      </>
+      )}
 
       {/* Common errors */}
       <h2 className="text-xl font-semibold mb-3">Common Errors</h2>

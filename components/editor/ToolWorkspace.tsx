@@ -4,12 +4,24 @@ import { useEffect, useCallback, useState, useRef, DragEvent } from 'react';
 import { useWorkspaceStore } from '@/lib/store';
 import { TOOL_MAP } from '@/lib/tools-registry';
 import {
+  jsonDiff,
   formatJson,
   validateJson,
   minifyJson,
   jsonToXml,
   jsonToCsv,
   jsonToYaml,
+  csvToJson,
+  yamlFormat,
+  yamlToJson,
+  jsonSchemaGenerate,
+  jwtDecode,
+  xmlFormat,
+  xmlValidate,
+  xmlToJson,
+  htmlFormat,
+  urlEncode,
+  urlDecode,
   base64Encode,
   base64Decode,
   type ProcessResult,
@@ -29,20 +41,44 @@ function getProcessor(toolId: string, base64Mode: 'encode' | 'decode') {
     case 'json-validator': return validateJson;
     case 'json-minifier': return minifyJson;
     case 'json-to-xml': return jsonToXml;
+    case 'json-to-csv': return jsonToCsv;
+    case 'json-to-yaml': return jsonToYaml;
+    case 'csv-to-json': return csvToJson;
+    case 'json-schema-generator': return jsonSchemaGenerate;
+    case 'yaml-formatter': return yamlFormat;
+    case 'yaml-to-json': return yamlToJson;
+    case 'xml-formatter': return xmlFormat;
+    case 'xml-validator': return xmlValidate;
+    case 'xml-to-json': return xmlToJson;
+    case 'jwt-decoder': return jwtDecode;
+    case 'html-formatter': return htmlFormat;
+    case 'url-encode': return urlEncode;
+    case 'url-decode': return urlDecode;
+    case 'base64-encode': return base64Encode;
+    case 'base64-decode': return base64Decode;
     case 'base64': return base64Mode === 'encode' ? base64Encode : base64Decode;
+    case 'json-viewer':
+    case 'json-parser':
+    case 'json-pretty-print': return formatJson;
+    case 'json-diff': return jsonDiff;
     default: return formatJson;
   }
 }
 
 function getOutputLanguage(toolId: string): string {
-  if (toolId === 'json-to-xml') return 'xml';
-  if (toolId === 'base64') return 'text';
-  if (toolId === 'json-validator') return 'text';
+  if (['json-to-xml', 'xml-formatter'].includes(toolId)) return 'xml';
+  if (['base64', 'base64-encode', 'base64-decode', 'json-validator', 'json-diff', 'xml-validator', 'url-encode', 'url-decode'].includes(toolId)) return 'text';
+  if (['yaml-formatter', 'json-to-yaml'].includes(toolId)) return 'yaml';
+  if (toolId === 'json-to-csv') return 'csv';
+  if (toolId === 'html-formatter') return 'html';
   return 'json';
 }
 
 function getInputLanguage(toolId: string): string {
-  if (toolId === 'base64') return 'plaintext';
+  if (['base64', 'base64-encode', 'base64-decode', 'jwt-decoder', 'url-encode', 'url-decode'].includes(toolId)) return 'plaintext';
+  if (['yaml-formatter', 'yaml-to-json'].includes(toolId)) return 'yaml';
+  if (['xml-formatter', 'xml-validator', 'xml-to-json'].includes(toolId)) return 'xml';
+  if (['csv-to-json', 'html-formatter'].includes(toolId)) return 'plaintext';
   return 'json';
 }
 
@@ -63,6 +99,7 @@ export default function ToolWorkspace({ toolId }: ToolWorkspaceProps) {
   const base64Mode = useWorkspaceStore((s) => s.base64Mode);
   const setBase64Mode = useWorkspaceStore((s) => s.setBase64Mode);
   const toggleSidebar = useWorkspaceStore((s) => s.toggleSidebar);
+  const toggleFullscreen = useWorkspaceStore((s) => s.toggleFullscreen);
   const setShowShortcutsModal = useWorkspaceStore((s) => s.setShowShortcutsModal);
   const addToast = useWorkspaceStore((s) => s.addToast);
 
@@ -118,10 +155,14 @@ export default function ToolWorkspace({ toolId }: ToolWorkspaceProps) {
         e.preventDefault();
         toggleSidebar();
       }
+      if (mod && e.shiftKey && (e.key === 'F' || e.key === 'f')) {
+        e.preventDefault();
+        toggleFullscreen();
+      }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [runTool, toolId, input, setOutput, toggleSidebar, setShowShortcutsModal]);
+  }, [runTool, toolId, input, setOutput, toggleSidebar, toggleFullscreen, setShowShortcutsModal]);
 
   // Resizable split
   const onMouseDown = () => {
@@ -158,8 +199,8 @@ export default function ToolWorkspace({ toolId }: ToolWorkspaceProps) {
     setIsDragOver(false);
     const file = e.dataTransfer?.files?.[0];
     if (!file) return;
-    if (!file.name.match(/\.(json|txt|xml|csv)$/i)) {
-      addToast('Only .json, .txt, .xml, .csv files supported', 'error');
+    if (!file.name.match(/\.(json|txt|xml|csv|yaml|yml)$/i)) {
+      addToast('Only .json, .txt, .xml, .csv, .yaml, .yml files supported', 'error');
       return;
     }
     const reader = new FileReader();
@@ -197,37 +238,22 @@ export default function ToolWorkspace({ toolId }: ToolWorkspaceProps) {
         </div>
       )}
 
-      {/* Tool header bar */}
-      <div className="flex items-center gap-3 px-4 h-10 bg-gradient-to-r from-dt-surface to-dt-bg border-b border-dt-border shrink-0 shadow-sm">
-        <span className="font-mono text-xs text-dt-text-dim">{tool.icon}</span>
-        <h1 className="text-sm font-semibold text-dt-text">{tool.name}</h1>
-
-        {toolId === 'base64' && (
-          <div className="flex items-center gap-1 ml-4">
-            {(['encode', 'decode'] as const).map((mode) => (
-              <button
-                key={mode}
-                onClick={() => setBase64Mode(mode)}
-                className={`text-xs px-2 py-0.5 rounded capitalize ${
-                  base64Mode === mode
-                    ? 'bg-dt-accent text-white'
-                    : 'text-dt-text-muted bg-dt-bg hover:text-dt-text'
-                }`}
-              >
-                {mode}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Toolbar */}
-      <Toolbar toolId={toolId} onRun={runTool} processing={processing} />
+      {/* Unified toolbar row (header + toolbar merged) */}
+      <Toolbar
+        toolId={toolId}
+        onRun={runTool}
+        processing={processing}
+        toolName={tool.name}
+        toolIcon={tool.icon}
+        base64Mode={base64Mode}
+        setBase64Mode={setBase64Mode}
+        isJsonTool={isJsonTool}
+      />
 
       {/* Split panels */}
       <div ref={containerRef} className="flex flex-1 min-h-0">
         {/* Input editor */}
-        <div style={{ width: `${splitPercent}%` }} className="min-w-0 shadow-[2px_0_8px_rgba(0,0,0,0.1)]">
+        <div style={{ width: `${splitPercent}%` }} className="min-w-0 shadow-[inset_2px_0_8px_rgba(0,0,0,0.15)]">
           <MonacoWrapper toolId={toolId} language={getInputLanguage(toolId)} />
         </div>
 

@@ -5,7 +5,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  --sidebar-width: 260px;
+  --sidebar-width: 240px;
   --sidebar-collapsed: 48px;
   --header-height: 40px;
   --tab-height: 36px;
@@ -27,15 +27,17 @@ body {
 /* Dark theme (default) */
 .dark {
   color-scheme: dark;
-  --dt-bg: #1e1e2e;
-  --dt-surface: #252536;
-  --dt-sidebar: #1b1b2c;
-  --dt-border: #2e2e42;
-  --dt-text: #e2e8f0;
+  --dt-bg: #0f172a;
+  --dt-surface: #111827;
+  --dt-sidebar: #0c1322;
+  --dt-border: #1e293b;
+  --dt-accent: #60a5fa;
+  --dt-accent-hover: #3b82f6;
+  --dt-text: #f1f5f9;
   --dt-text-muted: #94a3b8;
   --dt-text-dim: #64748b;
-  --dt-tab: #2a2a3e;
-  --dt-tab-active: #1e1e2e;
+  --dt-tab: #0f172a;
+  --dt-tab-active: #111827;
 }
 
 /* Light theme */
@@ -45,6 +47,8 @@ body {
   --dt-surface: #ffffff;
   --dt-sidebar: #f1f5f9;
   --dt-border: #e2e8f0;
+  --dt-accent: #2563eb;
+  --dt-accent-hover: #1d4ed8;
   --dt-text: #1e293b;
   --dt-text-muted: #475569;
   --dt-text-dim: #94a3b8;
@@ -61,18 +65,18 @@ body {
 
 .dark ::-webkit-scrollbar-track,
 .dark::-webkit-scrollbar-track {
-  background: #1e1e2e;
+  background: #0f172a;
 }
 
 .dark ::-webkit-scrollbar-thumb,
 .dark::-webkit-scrollbar-thumb {
-  background: #3e3e56;
+  background: #1e293b;
   border-radius: 4px;
 }
 
 .dark ::-webkit-scrollbar-thumb:hover,
 .dark::-webkit-scrollbar-thumb:hover {
-  background: #5e5e7e;
+  background: #334155;
 }
 
 /* Scrollbar styling — light */
@@ -109,7 +113,7 @@ body {
 
 .resizer:hover,
 .resizer.active {
-  background: #7c3aed;
+  background: var(--dt-accent);
 }
 
 /* Toast slide-in animation */

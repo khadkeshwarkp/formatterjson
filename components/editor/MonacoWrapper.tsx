@@ -33,6 +33,7 @@ export default function MonacoWrapper({ toolId, language = 'json', onChange }: M
         fontFamily: 'Fira Code, JetBrains Mono, Consolas, monospace',
         fontSize: 14,
         minimap: { enabled: false },
+        bracketPairColorization: { enabled: true },
         automaticLayout: true,
         scrollBeyondLastLine: false,
         tabSize: 2,

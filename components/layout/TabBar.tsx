@@ -16,7 +16,7 @@ export default function TabBar() {
         return (
           <div
             key={id}
-            className={`flex items-center gap-1 px-3 h-full text-xs border-r border-dt-border cursor-pointer select-none transition-colors shrink-0 ${
+            className={`flex items-center gap-1 px-2 h-full text-xs border-r border-dt-border cursor-pointer select-none transition-colors shrink-0 ${
               isActive
                 ? 'bg-dt-bg text-dt-text border-b-2 border-b-dt-accent'
                 : 'bg-dt-tab text-dt-text-muted hover:bg-dt-surface'

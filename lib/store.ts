@@ -15,6 +15,7 @@ interface WorkspaceState {
   recentTools: string[];
   favoriteTools: string[];
   base64Mode: 'encode' | 'decode';
+  isFullscreen: boolean;
   showShortcutsModal: boolean;
   toasts: { id: number; message: string; type: 'success' | 'error' }[];
 
@@ -27,6 +28,7 @@ interface WorkspaceState {
   clearInput: (toolId: string) => void;
   toggleTheme: () => void;
   toggleSidebar: () => void;
+  toggleFullscreen: () => void;
   setBase64Mode: (mode: 'encode' | 'decode') => void;
   toggleFavorite: (toolId: string) => void;
   setShowShortcutsModal: (show: boolean) => void;
@@ -47,6 +49,7 @@ export const useWorkspaceStore = create<WorkspaceState>()(
       recentTools: [],
       favoriteTools: [],
       base64Mode: 'encode',
+      isFullscreen: false,
       showShortcutsModal: false,
       toasts: [],
 
@@ -102,6 +105,9 @@ export const useWorkspaceStore = create<WorkspaceState>()(
 
       toggleSidebar: () =>
         set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
+
+      toggleFullscreen: () =>
+        set((s) => ({ isFullscreen: !s.isFullscreen })),
 
       setBase64Mode: (mode) => set({ base64Mode: mode }),
 

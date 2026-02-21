@@ -42,7 +42,15 @@ export default function OutputPanel({ toolId, error, outputLanguage = 'json' }: 
   };
 
   const handleDownload = () => {
-    const ext = isXml ? 'xml' : outputLanguage === 'text' ? 'txt' : 'json';
+    const extMap: Record<string, string> = {
+      xml: 'xml',
+      text: 'txt',
+      csv: 'csv',
+      yaml: 'yaml',
+      html: 'html',
+      json: 'json',
+    };
+    const ext = extMap[outputLanguage] ?? 'json';
     downloadText(output, `output.${ext}`);
   };
 
@@ -73,7 +81,12 @@ export default function OutputPanel({ toolId, error, outputLanguage = 'json' }: 
   };
 
   // Determine Monaco language for output
-  const monacoLang = isXml ? 'xml' : outputLanguage === 'text' ? 'plaintext' : 'json';
+  const monacoLang =
+    isXml ? 'xml'
+    : outputLanguage === 'text' ? 'plaintext'
+    : outputLanguage === 'yaml' ? 'yaml'
+    : outputLanguage === 'html' ? 'html'
+    : 'json';
 
   return (
     <div className="flex flex-col h-full bg-dt-bg">

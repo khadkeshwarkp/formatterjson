@@ -8,6 +8,7 @@ const SHORTCUTS = [
   { keys: 'Ctrl + Shift + M', action: 'Minify JSON (JSON tools)' },
   { keys: '?', action: 'Show keyboard shortcuts' },
   { keys: 'Ctrl + B', action: 'Toggle sidebar' },
+  { keys: 'Ctrl + Shift + F', action: 'Toggle fullscreen' },
   { keys: 'Ctrl + K', action: 'Focus search' },
 ];
 

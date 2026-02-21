@@ -43,9 +43,9 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="flex flex-col w-[260px] bg-dt-sidebar border-r border-dt-border flex-shrink-0">
+    <aside className="flex flex-col w-[240px] bg-dt-sidebar border-r border-dt-border flex-shrink-0">
       {/* Header */}
-      <div className="flex items-center justify-between px-3 h-10 border-b border-dt-border">
+      <div className="flex items-center justify-between px-3 h-9 border-b border-dt-border">
         <span className="text-sm font-semibold text-dt-text tracking-wide">DevTools</span>
         <button
           onClick={toggleSidebar}
@@ -174,7 +174,7 @@ function SidebarItem({
         onSelect();
         window.history.pushState(null, '', tool.route);
       }}
-      className={`group flex items-center gap-2 px-2 py-1.5 mx-1 rounded text-sm transition-colors ${
+      className={`group flex items-center gap-2 px-2 py-1 mx-1 rounded text-sm transition-colors ${
         active
           ? 'bg-dt-accent/20 text-dt-accent'
           : 'text-dt-text-muted hover:bg-dt-surface hover:text-dt-text'
