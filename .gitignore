@@ -1,0 +1,19 @@
+# dependencies
+node_modules/
+
+# next.js
+.next/
+out/
+
+# misc
+.DS_Store
+*.tgz
+
+# local env files
+.env*.local
+
+# debug
+npm-debug.log*
+
+# artifacts
+htdocs.zip
