@@ -4,6 +4,8 @@ import { persist } from 'zustand/middleware';
 interface ToolData {
   input: string;
   output: string;
+  /** Second input for dual-input tools (e.g. json-diff) */
+  input2?: string;
 }
 
 interface WorkspaceState {
@@ -24,6 +26,7 @@ interface WorkspaceState {
   openTab: (id: string) => void;
   closeTab: (id: string) => void;
   setInput: (toolId: string, input: string) => void;
+  setInput2: (toolId: string, input2: string) => void;
   setOutput: (toolId: string, output: string) => void;
   clearInput: (toolId: string) => void;
   toggleTheme: () => void;
@@ -88,7 +91,15 @@ export const useWorkspaceStore = create<WorkspaceState>()(
         set((s) => ({
           toolData: {
             ...s.toolData,
-            [toolId]: { ...s.toolData[toolId], input, output: s.toolData[toolId]?.output ?? '' },
+            [toolId]: { ...s.toolData[toolId], input, output: s.toolData[toolId]?.output ?? '', input2: s.toolData[toolId]?.input2 ?? '' },
+          },
+        })),
+
+      setInput2: (toolId, input2) =>
+        set((s) => ({
+          toolData: {
+            ...s.toolData,
+            [toolId]: { ...s.toolData[toolId], input2, input: s.toolData[toolId]?.input ?? '', output: s.toolData[toolId]?.output ?? '' },
           },
         })),
 
@@ -96,7 +107,7 @@ export const useWorkspaceStore = create<WorkspaceState>()(
         set((s) => ({
           toolData: {
             ...s.toolData,
-            [toolId]: { ...s.toolData[toolId], output, input: s.toolData[toolId]?.input ?? '' },
+            [toolId]: { ...s.toolData[toolId], output, input: s.toolData[toolId]?.input ?? '', input2: s.toolData[toolId]?.input2 ?? '' },
           },
         })),
 
@@ -115,7 +126,7 @@ export const useWorkspaceStore = create<WorkspaceState>()(
         set((s) => ({
           toolData: {
             ...s.toolData,
-            [toolId]: { input: '', output: '' },
+            [toolId]: { input: '', output: '', input2: '' },
           },
         })),
 

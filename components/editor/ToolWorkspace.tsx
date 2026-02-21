@@ -5,6 +5,7 @@ import { useWorkspaceStore } from '@/lib/store';
 import { TOOL_MAP } from '@/lib/tools-registry';
 import {
   jsonDiff,
+  jsonDiffTwo,
   formatJson,
   validateJson,
   minifyJson,
@@ -96,6 +97,7 @@ export default function ToolWorkspace({ toolId }: ToolWorkspaceProps) {
   const setOutput = useWorkspaceStore((s) => s.setOutput);
   const setInput = useWorkspaceStore((s) => s.setInput);
   const input = useWorkspaceStore((s) => s.toolData[toolId]?.input ?? '');
+  const input2 = useWorkspaceStore((s) => s.toolData[toolId]?.input2 ?? '');
   const base64Mode = useWorkspaceStore((s) => s.base64Mode);
   const setBase64Mode = useWorkspaceStore((s) => s.setBase64Mode);
   const toggleSidebar = useWorkspaceStore((s) => s.toggleSidebar);
@@ -113,22 +115,31 @@ export default function ToolWorkspace({ toolId }: ToolWorkspaceProps) {
   const runTool = useCallback(() => {
     setProcessing(true);
     setTimeout(() => {
-      const processor = getProcessor(toolId, base64Mode);
-      const result: ProcessResult = processor(input);
-      setOutput(toolId, result.output);
-      setError(result.error);
-      if (result.error) addToast(result.error, 'error');
+      if (toolId === 'json-diff') {
+        const result = jsonDiffTwo(input, input2);
+        setOutput(toolId, result.output);
+        setError(result.error);
+        if (result.error) addToast(result.error, 'error');
+      } else {
+        const processor = getProcessor(toolId, base64Mode);
+        const result: ProcessResult = processor(input);
+        setOutput(toolId, result.output);
+        setError(result.error);
+        if (result.error) addToast(result.error, 'error');
+      }
       setProcessing(false);
     }, 0);
-  }, [toolId, input, base64Mode, setOutput, addToast]);
+  }, [toolId, input, input2, base64Mode, setOutput, addToast]);
 
-  // Auto-run on input change (debounced 1s)
+  // Auto-run on input change (debounced)
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (input) runTool();
+      if (toolId === 'json-diff') {
+        if (input || input2) runTool();
+      } else if (input) runTool();
     }, 300);
     return () => clearTimeout(timer);
-  }, [input, runTool]);
+  }, [toolId, input, input2, runTool]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -250,21 +261,41 @@ export default function ToolWorkspace({ toolId }: ToolWorkspaceProps) {
         isJsonTool={isJsonTool}
       />
 
-      {/* Split panels */}
-      <div ref={containerRef} className="flex flex-1 min-h-0">
-        {/* Input editor */}
-        <div style={{ width: `${splitPercent}%` }} className="min-w-0 shadow-[inset_2px_0_8px_rgba(0,0,0,0.15)]">
-          <MonacoWrapper toolId={toolId} language={getInputLanguage(toolId)} />
+      {/* Split panels — json-diff: side-by-side inputs + output below; else: input | output */}
+      {toolId === 'json-diff' ? (
+        <div className="flex flex-1 flex-col min-h-0">
+          <div className="flex flex-1 min-h-0 border-b border-dt-border">
+            <div className="flex-1 min-w-0 flex flex-col border-r border-dt-border">
+              <div className="px-2 py-1 text-[10px] text-dt-text-dim uppercase border-b border-dt-border bg-dt-surface">Left JSON</div>
+              <div className="flex-1 min-h-0 shadow-[inset_2px_0_8px_rgba(0,0,0,0.15)]">
+                <MonacoWrapper toolId={toolId} language="json" variant="left" />
+              </div>
+            </div>
+            <div className="flex-1 min-w-0 flex flex-col">
+              <div className="px-2 py-1 text-[10px] text-dt-text-dim uppercase border-b border-dt-border bg-dt-surface">Right JSON</div>
+              <div className="flex-1 min-h-0">
+                <MonacoWrapper toolId={toolId} language="json" variant="right" />
+              </div>
+            </div>
+          </div>
+          <div className="h-[40%] min-h-[120px] flex flex-col border-t border-dt-border">
+            <div className="px-2 py-1 text-[10px] text-dt-text-dim uppercase border-b border-dt-border bg-dt-surface">Differences</div>
+            <div className="flex-1 min-h-0">
+              <OutputPanel toolId={toolId} error={error} outputLanguage="text" />
+            </div>
+          </div>
         </div>
-
-        {/* Resizer */}
-        <div className="resizer" onMouseDown={onMouseDown} />
-
-        {/* Output panel */}
-        <div style={{ width: `${100 - splitPercent}%` }} className="min-w-0">
-          <OutputPanel toolId={toolId} error={error} outputLanguage={getOutputLanguage(toolId)} />
+      ) : (
+        <div ref={containerRef} className="flex flex-1 min-h-0">
+          <div style={{ width: `${splitPercent}%` }} className="min-w-0 shadow-[inset_2px_0_8px_rgba(0,0,0,0.15)]">
+            <MonacoWrapper toolId={toolId} language={getInputLanguage(toolId)} />
+          </div>
+          <div className="resizer" onMouseDown={onMouseDown} />
+          <div style={{ width: `${100 - splitPercent}%` }} className="min-w-0">
+            <OutputPanel toolId={toolId} error={error} outputLanguage={getOutputLanguage(toolId)} />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Multi-convert bar (for JSON tools) */}
       {isJsonTool && input && (

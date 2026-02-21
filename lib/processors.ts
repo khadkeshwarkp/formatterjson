@@ -10,15 +10,23 @@ export interface ProcessResult {
 // ─── JSON Diff ───────────────────────────────────────────────────
 const DIFF_DELIMITER = '\n---\n';
 
+/** Single-input version (delimiter-separated); kept for backward compatibility. */
 export function jsonDiff(input: string): ProcessResult {
+  const trimmed = input.trim();
+  if (!trimmed) return { output: '', error: null, errorLine: null };
+  const parts = trimmed.split(DIFF_DELIMITER);
+  if (parts.length < 2) {
+    return { output: '', error: 'Use left and right panels for side-by-side comparison', errorLine: null };
+  }
+  return jsonDiffTwo(parts[0].trim(), parts[1].trim());
+}
+
+/** Two-input version for side-by-side JSON diff. */
+export function jsonDiffTwo(leftStr: string, rightStr: string): ProcessResult {
   try {
-    const trimmed = input.trim();
-    if (!trimmed) return { output: '', error: null, errorLine: null };
-    const parts = trimmed.split(DIFF_DELIMITER);
-    if (parts.length < 2) {
-      return { output: '', error: 'Paste two JSON objects separated by "---" on its own line', errorLine: null };
-    }
-    const [leftStr, rightStr] = [parts[0].trim(), parts[1].trim()];
+    if (!leftStr.trim() && !rightStr.trim()) return { output: '', error: null, errorLine: null };
+    if (!leftStr.trim()) return { output: '', error: 'Paste JSON in the left panel', errorLine: null };
+    if (!rightStr.trim()) return { output: '', error: 'Paste JSON in the right panel', errorLine: null };
     const left = JSON.parse(leftStr);
     const right = JSON.parse(rightStr);
     const lines: string[] = [];

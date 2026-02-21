@@ -9,16 +9,21 @@ interface MonacoWrapperProps {
   toolId: string;
   language?: string;
   onChange?: (value: string) => void;
+  /** For dual-input tools (e.g. json-diff): bind to second input */
+  variant?: 'left' | 'right';
 }
 
-export default function MonacoWrapper({ toolId, language = 'json', onChange }: MonacoWrapperProps) {
+export default function MonacoWrapper({ toolId, language = 'json', onChange, variant = 'left' }: MonacoWrapperProps) {
   const theme = useWorkspaceStore((s) => s.theme);
-  const input = useWorkspaceStore((s) => s.toolData[toolId]?.input ?? '');
+  const toolData = useWorkspaceStore((s) => s.toolData[toolId]);
   const setInput = useWorkspaceStore((s) => s.setInput);
+  const setInput2 = useWorkspaceStore((s) => s.setInput2);
+  const value = variant === 'right' ? (toolData?.input2 ?? '') : (toolData?.input ?? '');
+  const setValue = variant === 'right' ? setInput2 : setInput;
 
-  const handleChange = (value: string | undefined) => {
-    const v = value ?? '';
-    setInput(toolId, v);
+  const handleChange = (val: string | undefined) => {
+    const v = val ?? '';
+    setValue(toolId, v);
     onChange?.(v);
   };
 
@@ -26,7 +31,7 @@ export default function MonacoWrapper({ toolId, language = 'json', onChange }: M
     <Editor
       height="100%"
       language={language}
-      value={input}
+      value={value}
       onChange={handleChange}
       theme={theme === 'dark' ? 'vs-dark' : 'light'}
       options={{

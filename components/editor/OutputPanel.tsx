@@ -42,7 +42,7 @@ export default function OutputPanel({ toolId, error, outputLanguage = 'json' }: 
   };
 
   const handleDownload = () => {
-    const extMap: Record<string, string> = {
+    const extByLanguage: Record<string, string> = {
       xml: 'xml',
       text: 'txt',
       csv: 'csv',
@@ -50,7 +50,27 @@ export default function OutputPanel({ toolId, error, outputLanguage = 'json' }: 
       html: 'html',
       json: 'json',
     };
-    const ext = extMap[outputLanguage] ?? 'json';
+    const extByToolId: Record<string, string> = {
+      'json-to-xml': 'xml',
+      'xml-formatter': 'xml',
+      'json-validator': 'txt',
+      'xml-validator': 'txt',
+      'json-to-csv': 'csv',
+      'yaml-formatter': 'yaml',
+      'json-to-yaml': 'yaml',
+      'yaml-to-json': 'json',
+      'csv-to-json': 'json',
+      'xml-to-json': 'json',
+      'html-formatter': 'html',
+      'base64': 'txt',
+      'base64-encode': 'txt',
+      'base64-decode': 'txt',
+      'url-encode': 'txt',
+      'url-decode': 'txt',
+      'jwt-decoder': 'json',
+      'json-diff': 'txt',
+    };
+    const ext = extByLanguage[outputLanguage] ?? extByToolId[toolId] ?? 'json';
     downloadText(output, `output.${ext}`);
   };
 

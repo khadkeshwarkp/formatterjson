@@ -217,6 +217,9 @@ export default function ToolSEOContent({ toolId }: ToolSEOContentProps) {
       {/* All tools internal linking */}
       <h2 className="text-xl font-semibold mb-3">All Developer Tools</h2>
       <div className="flex flex-wrap gap-3">
+        <Link href="/" className="text-sm text-dt-accent hover:underline">
+          Home
+        </Link>
         {TOOLS.filter((t) => t.id !== toolId).map((t) => (
           <Link
             key={t.id}

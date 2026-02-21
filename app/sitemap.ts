@@ -33,6 +33,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const legalRoutes = ['/about', '/privacy', '/terms', '/disclaimer', '/contact'];
 
   return [
+    { url: SITE_URL, lastModified: new Date('2026-02-21'), changeFrequency: 'weekly' as const, priority: 1.0 },
     ...toolRoutes.map((route) => ({
       url: `${SITE_URL}${route}`,
       lastModified: new Date('2026-02-21'),
